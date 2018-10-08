@@ -11,7 +11,7 @@ contract Betme
         uint _participantAnswer;
     }
 
-    mapping(bytes32 => mapping(address => BetParticipant)) _betParticipants;
+    mapping(bytes32 => mapping(uint => BetParticipant)) _betParticipants;
 
     struct PossibleAnswers {
         string _answer;
@@ -25,7 +25,10 @@ contract Betme
         uint _numberOfPossibleAnswers;
         uint _amount;
         address _betWitness;
+        uint _numberOfParticipants;
+        uint _numberOfParticipantsEnterInBet;
         uint _theWinner;
+        uint _ready;
     }
 
     mapping(bytes32 => BetDetails) _bets;
@@ -56,6 +59,22 @@ contract Betme
     //     _;
     // }
 
+    modifier checkNumberOfAnswers(bytes32 betID, uint id){
+        _bets[betID]._numberOfPossibleAnswers >= id;
+        _;
+    }
+
+    modifier checkNumberOfParticipants(bytes32 betID){
+        _bets[betID]._ready == 1;
+        _bets[betID]._numberOfParticipants >= _bets[betID]._numberOfParticipantsEnterInBet;
+        _;
+    }
+
+    modifier checkAllowAddAnswers(bytes32 betID){
+        _bets[betID]._ready == 0;
+        _;
+    }
+
     constructor() public {
         _owner = msg.sender;
     }
@@ -66,21 +85,26 @@ contract Betme
         string theBet,
         uint numberOfPossibleAnswers,
         uint amount,
-        address betWitness
+        address betWitness,
+        uint numberOfParticipants
     )
     public returns (bytes32 betID) {
         bytes32 unique = keccak256(abi.encodePacked(nonce++, theBet));
-        _bets[unique] = BetDetails(block.timestamp, theBet, numberOfPossibleAnswers, amount, betWitness, 0);
+        _bets[unique] = BetDetails(block.timestamp, theBet, numberOfPossibleAnswers, amount, betWitness, numberOfParticipants, 0, 0, 0);
         return (unique);
     }
 
-    function createBetAnswers(bytes32 betID, uint id, string answer) public {
+    function createBetAnswers(bytes32 betID, uint id, string answer) checkAllowAddAnswers(betID) public {
         _posibleAnswers[betID][id]._answer = answer;
+        if(_bets[betID]._numberOfPossibleAnswers == id){
+            _bets[betID]._ready = 1;
+        }
     }
 
-    function addParticipant(bytes32 betID, address participantAddress, uint participantAnswer) public {
-        _betParticipants[betID][participantAddress]._participantAddress = participantAddress;
-        _betParticipants[betID][participantAddress]._participantAnswer = participantAnswer;
+    function addParticipant(bytes32 betID, address participantAddress, uint participantAnswer) checkNumberOfParticipants(betID) public {
+        uint i = _bets[betID]._numberOfParticipants++;
+        _betParticipants[betID][i]._participantAddress = participantAddress;
+        _betParticipants[betID][i]._participantAnswer = participantAnswer;
     }
 
     // function acceptBet(bytes32 betID)

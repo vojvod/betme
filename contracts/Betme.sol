@@ -6,15 +6,25 @@ contract Betme
     uint private nonce;
     uint payForBet = 10000000000000000;
 
+    struct BetParticipant {
+        address _participantAddress;
+        uint _participantAcceptBet;
+        uint _participantAnswer;
+    }
+
+    struct PossibleAnswers {
+        string _answer;
+    }
+
     struct BetDetails {
         uint _timestamp;
         string _theBet;
+        uint _numberOfPossibleAnswers;
+        mapping(uint => PossibleAnswers) _posibleAnswers;
         uint _amount;
         address _betWitness;
-        address _betParticipantOne;
-        uint _betParticipantOneAcceptBet;
-        address _betParticipantTwo;
-        uint _betParticipantTwoAcceptBet;
+        uint _numberOfParticipants;
+        mapping(uint => BetParticipant) _betParticipants;
         uint _theWinner;
     }
 

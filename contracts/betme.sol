@@ -52,10 +52,10 @@ contract Betme
 
     function() public payable {}
 
-    function createBet(string theBet, uint amount, address betWitness, address betparticipantOne, address betparticipantTwo)
+    function createBet(string theBet, uint amount, address betWitness, address betParticipantOne, address betParticipantTwo)
     public returns (bytes32 betID) {
         bytes32 unique = keccak256(abi.encodePacked(nonce++, theBet));
-        _bets[unique] = BetDetails(block.timestamp, theBet, amount, betWitness, betparticipantOne, 0, betparticipantTwo, 0, 0);
+        _bets[unique] = BetDetails(block.timestamp, theBet, amount, betWitness, betParticipantOne, 0, betParticipantTwo, 0, 0);
         return (unique);
     }
 
@@ -82,8 +82,8 @@ contract Betme
         string theBet,
         uint amount,
         address betWitness,
-        address betparticipantOne,
-        address betparticipantTwo,
+        address betParticipantOne,
+        address betParticipantTwo,
         uint theWinner
     ) {
         BetDetails memory betDetails = _bets[betID];

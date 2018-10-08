@@ -4,6 +4,7 @@ contract Betme
 {
     address private _owner;
     uint private nonce;
+    uint payForBet = 10000000000000000;
 
     struct BetDetails {
         uint _timestamp;
@@ -20,7 +21,7 @@ contract Betme
     mapping(bytes32 => BetDetails) _bets;
 
     modifier validValue(uint amount) {
-        require(msg.value == amount + 10000000000000000);
+        require(msg.value == amount + payForBet);
         _;
     }
 
@@ -65,12 +66,12 @@ contract Betme
         if (_bets[betID]._betParticipantOne == msg.sender) {
             _bets[betID]._betParticipantOneAcceptBet = 1;
             address(this).transfer(msg.value);
-            _owner.transfer(10000000000000000);
+            _owner.transfer(payForBet);
         }
         else if (_bets[betID]._betParticipantTwo == msg.sender) {
             _bets[betID]._betParticipantTwoAcceptBet = 1;
             address(this).transfer(msg.value);
-            _owner.transfer(10000000000000000);
+            _owner.transfer(payForBet);
         }
     }
 

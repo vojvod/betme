@@ -19,8 +19,8 @@ contract Betme
 
     mapping(bytes32 => BetDetails) _bets;
 
-    modifier validValue() {
-        require(msg.value > 10000000000000000);
+    modifier validValue(uint amount) {
+        require(msg.value == amount + 10000000000000000);
         _;
     }
 
@@ -52,24 +52,25 @@ contract Betme
     function() public payable {}
 
     function createBet(string theBet, uint amount, address betWitness, address betparticipantOne, address betparticipantTwo)
-    validValue
-    public payable returns (bytes32 betID) {
+    public returns (bytes32 betID) {
         bytes32 unique = keccak256(abi.encodePacked(nonce++, theBet));
         _bets[unique] = BetDetails(block.timestamp, theBet, amount, betWitness, betparticipantOne, 0, betparticipantTwo, 0, 0);
-        _owner.transfer(msg.value);
         return (unique);
     }
 
     function acceptBet(bytes32 betID)
     validParticipant(betID, msg.sender, msg.value)
+    validValue(msg.value)
     public payable {
         if (_bets[betID]._betParticipantOne == msg.sender) {
             _bets[betID]._betParticipantOneAcceptBet = 1;
             address(this).transfer(msg.value);
+            _owner.transfer(10000000000000000);
         }
         else if (_bets[betID]._betParticipantTwo == msg.sender) {
             _bets[betID]._betParticipantTwoAcceptBet = 1;
             address(this).transfer(msg.value);
+            _owner.transfer(10000000000000000);
         }
     }
 
